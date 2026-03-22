@@ -1,10 +1,9 @@
 (function () {
-  window.ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
-  window.ELVO_API = window.ELVO_API || `${window.ELVO_SERVER}/api/products`;
-
-  const OUTFIT_KEY = "elvo_outfit";
+  // ✅ use common.js global config
   const SERVER = window.ELVO_SERVER;
   const API = window.ELVO_API;
+
+  const OUTFIT_KEY = "elvo_outfit";
 
   function outfitImgUrl(path) {
     if (!path) return "assets/img/category-1.jpg";

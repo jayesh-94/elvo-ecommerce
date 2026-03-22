@@ -1,9 +1,6 @@
 // assets/js/shop.js
 
 // ✅ SAFE GLOBALS (no redeclare conflicts)
-window.ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
-window.ELVO_API = window.ELVO_API || `${window.ELVO_SERVER}/api/products`;
-
 const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_API = window.ELVO_API;
 

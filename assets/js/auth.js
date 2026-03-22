@@ -1,7 +1,7 @@
 // ========================
 // BASE URLS
 // ========================
-const ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
+const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_AUTH_API = `${ELVO_SERVER}/api/auth`;
 
 // ========================

@@ -1,4 +1,4 @@
-const ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
+const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_USER_API = `${ELVO_SERVER}/api/users`;
 const ELVO_ORDER_API = `${ELVO_SERVER}/api/orders`;
 

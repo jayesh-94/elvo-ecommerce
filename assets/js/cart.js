@@ -36,10 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Use global values from cart-utils.js
-const CART_SERVER_BASE =
-  window.SERVER_BASE || window.ELVO_SERVER || "http://localhost:5000";
-const CART_API_BASE =
-  window.API_BASE || `${CART_SERVER_BASE}/api/products`;
+const CART_SERVER_BASE = window.ELVO_SERVER;
+const CART_API_BASE = window.ELVO_API;
 
 // Fix image path using same backend base
 function imgUrl(path) {

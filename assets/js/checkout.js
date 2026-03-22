@@ -1,5 +1,5 @@
-const ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
-const ELVO_PRODUCTS_API = window.ELVO_API || `${ELVO_SERVER}/api/products`;
+const ELVO_SERVER = window.ELVO_SERVER;
+const ELVO_PRODUCTS_API = window.ELVO_API;
 
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");

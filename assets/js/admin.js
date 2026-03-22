@@ -1,8 +1,8 @@
 let editMode = false;
 let editProductId = null;
 
-const API_URL = "http://localhost:5000/api/products";
-const SERVER_BASE = "http://localhost:5000";
+const SERVER_BASE = window.ELVO_SERVER || "http://localhost:5000";
+const API_URL = `${SERVER_BASE}/api/products`;
 
 // for color information on product details tab
 function getColorLabel(colorValue) {
@@ -86,7 +86,7 @@ async function loadDashboardStats() {
   try {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:5000/api/orders/admin/stats", {
+    const res = await fetch(`${SERVER_BASE}/api/orders/admin/stats`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -349,7 +349,7 @@ async function editProduct(id) {
 // ADMIN ORDERS
 // ==============================
 
-const ORDER_API = "http://localhost:5000/api/orders";
+const ORDER_API = `${SERVER_BASE}/api/orders`;
 let currentAdminOrders = [];
 let currentAdminPage = 1;
 let currentAdminLimit = 20;

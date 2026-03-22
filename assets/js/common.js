@@ -1,5 +1,13 @@
 // common.js - this file is for header search works on ALL pages (no design change)
 
+window.ELVO_SERVER =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000"
+    : "https://elvo-backend-99i0.onrender.com";
+
+window.ELVO_API = `${window.ELVO_SERVER}/api/products`;
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchBox = document.querySelector(".header__search");
   if (!searchBox) return;

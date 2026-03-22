@@ -1,10 +1,6 @@
 // assets/js/cart-utils.js
 
 // ===== GLOBAL SERVER CONFIG (declare once, reuse everywhere) =====
-window.ELVO_SERVER = window.ELVO_SERVER || "http://localhost:5000";
-window.ELVO_API = window.ELVO_API || `${window.ELVO_SERVER}/api/products`;
-
-// keep your existing names so nothing else breaks
 const SERVER_BASE = window.ELVO_SERVER;
 const API_BASE = window.ELVO_API;
 
