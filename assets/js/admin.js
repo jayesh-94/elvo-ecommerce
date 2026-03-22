@@ -1,7 +1,7 @@
 let editMode = false;
 let editProductId = null;
 
-const SERVER_BASE = window.ELVO_SERVER || "http://localhost:5000";
+const SERVER_BASE = window.ELVO_SERVER;
 const API_URL = `${SERVER_BASE}/api/products`;
 
 // for color information on product details tab
