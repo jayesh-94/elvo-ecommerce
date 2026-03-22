@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="manage-products.html">Manage Products</a></li>
+        <li><a href="manage-orders.html">Manage Orders</a></li>
+        <li><a href="#" class="logout-link">Logout</a></li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <h1>Dashboard</h1>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Total Products</h3>
+          <p id="totalProducts">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Total Orders</h3>
+          <p id="totalOrders">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Total Users</h3>
+          <p id="totalUsers">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Pending Orders</h3>
+          <p id="pendingOrders">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Delivered Orders</h3>
+          <p id="deliveredOrders">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Cancelled Orders</h3>
+          <p id="cancelledOrders">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Total Revenue</h3>
+          <p id="totalRevenue">₹0</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-protect.js"></script>
+    <script src="/assets/js/admin.js"></script>
+  </body>
+</html>

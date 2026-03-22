@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <!--========================== FLATIOCN =======================-->
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-thin-straight/css/uicons-thin-straight.css'
+    />
+    
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'/>
+
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css'/>
+
+     <!--========================== SWIPER CSS=======================-->
+     <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+
+     <!--========================== CSS =======================-->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <title>Details</title>
+</head>
+<body>
+     <!--========================== HEADER  =======================-->
+     <header class="header">
+    <div class="header__top">
+        <div class="header__container container">
+            <div class="header__contact">
+                <span>(+91) - 5264 - 2777</span>
+
+                <span> our location</span>
+            </div>
+
+            <p class="header__alert">
+                Super Value Deals - Save more with coupon
+            </p>
+
+            <a href="login-register.html" class="header__top-action">
+                Log In / Sing Up
+            </a>
+        </div>
+    </div>
+
+    <nav class="nav container">
+        <a href="index.html" class="nav__logo">
+            <img src="assets/img/logo-1.svg" alt="" class="nav__logo--img">
+        </a>
+
+        <div class="nav__menu" id="nav-menu">
+            <div class="nav__menu-top">
+                <a href="index.html" class="nav__menu-logo">
+                   <img src="assets/img/logo-1.svg" alt="">
+                </a>
+
+                <div class="nav__close" id="nav-close">
+                    <i class="fi fi-rs-cross-small"></i>      
+                </div>
+            </div>
+
+            
+            <ul class="nav__list">
+               <li class="nav__item">
+                <a href="index.html" class="nav__link">Home</a>
+               </li> 
+
+               <li class="nav__item">
+                <a href="shop.html" class="nav__link">Shop</a>
+               </li> 
+
+               <li class="nav__item">
+               <a href="accounts.html" class="nav__link" id="accountNavLink">My Account</a>
+               </li> 
+
+               <li class="nav__item">
+                <a href="compare.html" class="nav__link">Compare</a>
+               </li> 
+
+               <li class="nav__item">
+                <a href="login-register.html" class="nav__link" id="loginNavLink">Login</a>
+               </li> 
+            </ul>
+
+            <!-- <div class="header__search">
+                <input 
+                 type="text"  
+                 placeholder="Search for items..."
+                 class="form__input">
+                
+                
+                <button class="search__btn">
+                    <img src="assets/img/search.png" alt="" />
+                </button>
+            </div> -->
+
+            <div class="header__search" id="searchForm">
+                <input 
+                    type="text"  
+                    placeholder="Search for items..."
+                    class="form__input"
+                    id="searchInput"
+                >
+
+                <button class="search__btn" id="searchBtn">
+                    <img src="assets/img/search.png" alt="" />
+                </button>
+            </div>
+        </div>
+
+       <div class="header__user-actions">     <!-- header changed   -->
+           <a href="wishlist.html" class="header__action-btn">
+            <img src="assets/img/icon-heart.svg" alt="">
+            <span class="count" data-wishlist-count>0</span>
+           </a>
+
+            <a href="cart.html" class="header__action-btn">
+            <img src="assets/img/icon-cart.svg" alt="">
+            <!-- <span class="count" id="cartCount">0</span> -->
+             <span class="count" data-cart-count>0</span>
+            </a>
+
+            <div class="header__action-btn nav__toggle" id="nav-toggle">
+                <img src="assets/img/menu-burger.svg" alt="">
+            </div>
+        </div>
+    </nav>
+   </header> 
+
+
+     <!--========================== BREADCRUMB  =======================-->
+    <section class="breadcrumb">
+        <ul class="breadcrumb__list flex container ">
+            <li><a href="index.html" class="breadcrumb__link">Home</a></li>
+            <li> <span class="breadcrumb__link">></span></li>
+            <li> <span class="breadcrumb__link">Fashion</span></li>
+            <li> <span class="breadcrumb__link">></span></li>
+            <li> <span class="breadcrumb__link">Zip-through hoodie</span></li>
+        </ul>
+    </section>   
+
+   <!--========================== DETAILS  =======================-->
+    <section class="details section--lg">
+        <div class="details__container container grid">
+            <div class="details__group">
+                <img id="mainImage" src="" alt="" class="details__img" />
+                <div id="thumbnailContainer" class="details__small-images grid">
+
+                </div>
+                  
+                
+                
+            </div>
+
+            <div class="details__group">
+               <h3 id="productTitle" class="details__title"></h3>
+                <p class="details__brand">Brand: <span>Elvo</span></p>
+
+                <div class="details__price flex">             
+                     <span id="productPrice" class="new__price"></span>
+                </div>
+
+                <p id="productDescription" class="short__description"></p>
+
+                <ul class="product__list">
+                    <li class="list__item flex">
+                        <i class="fi fi-rs-truck-side"></i>Delivery Time : 2-7 days
+                    </li>
+
+                    <li class="list__item flex">
+                        <i class="fi-rs-refresh"></i>30 Day Return Policy
+                    </li>
+
+                    <li class="list__item flex">
+                        <i class="fi fi-rs-wallet"></i>Cash On Delivery Available
+                    </li>
+                </ul>
+
+                <div class="details__color flex">
+                    <span class="details__color-title">Color</span>
+
+                    <ul id="colorContainer" class="color__list"></ul>
+                </div>
+
+                
+                <div class="details__size flex">
+                    <span class="details__size-title">Sizes</span>
+
+                   <ul id="sizeContainer" class="size__list"></ul>
+                </div>
+
+                <div class="details__action">
+                    <input type="number" class="quantity" value="1" />
+                    
+                   <a href="#"
+                    id="detailsAddToCart"
+                    class="btn btn--sm">
+                    Add to Cart
+                    </a>
+
+                    <a href="#"
+                    id="detailsWishlistBtn"
+                    class="details__action-btn wishlist__btn"
+                    data-product-id="">
+                    <i class="fi fi-rs-heart"></i>
+                    </a>
+                </div>
+
+                
+                    <ul class="details__meta ">
+                        <li class="meta__list flex">
+                             <span>Availability :</span>
+                             <span id="productStock"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+     </section>
+    
+     
+    <!--========================== DETAILS TAB =======================-->
+    <section class="details__tab container">
+        <div class="detail__tabs">
+            <span class="detail__tab active-tab" data-target="#info"> Additional Info</span>
+            <span class="detail__tab" data-target="#reviews">Reviews(3)</span>
+        </div>
+
+        <div class="details__tabs-content">
+            <div class="details__tab-content active-tab" content id="info">
+                <table class="info__table">
+                    <tr>
+                        <th>Fit</th>
+                        <td>Relaxed fit</td>
+                    </tr>
+
+                    <tr>
+                        <th>Composition</th>
+                        <td>97% cotton 3% elastane</td>
+                    </tr>
+
+                    <tr>
+                        <th>Care</th>
+                        <td>Machine wash</td>
+                    </tr>
+
+                    <tr>
+                        <th>Style</th>
+                        <td>21652111-200</td>
+                    </tr>
+
+                    <tr>
+                        <th>Net Quantity</th>
+                        <td>1 N</td>
+                    </tr>
+
+                    <tr>
+                        <th>Country of origin</th>
+                        <td>India</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="details__tab-content " content id="reviews">
+                <div class="reviews__container  grid">
+                    <div class="review__single">
+                      <div>
+                        <img src="assets/img/avatar-4.jpg" alt="" class="review__img"/>
+                        <h4 class="review__title">jay</h4>
+                      </div>
+
+                    <div class="review__data">
+                        <div class="review__rating">
+                            <i class="fi fi-rs-star"></i>
+                            <i class="fi fi-rs-star"></i>
+                            <i class="fi fi-rs-star"></i>
+                            <i class="fi fi-rs-star"></i>
+                            <i class="fi fi-rs-star"></i>
+                        </div>
+
+                        <p class="review__description">Thank you very. coolest hoddie ever bought</p>
+
+                        <span class="review__date">March 30, 2025 at 8:32 pm</span>
+                    </div>
+                 </div>
+
+                 <div class="review__single">
+                    <div>
+                      <img src="assets/img/avatar-2.jpg" alt="" class="review__img"/>
+                      <h4 class="review__title">shin</h4>
+                    </div>
+
+                  <div class="review__data">
+                      <div class="review__rating">
+                          <i class="fi fi-rs-star"></i>
+                          <i class="fi fi-rs-star"></i>
+                          <i class="fi fi-rs-star"></i>
+                          <i class="fi fi-rs-star"></i>
+                          <i class="fi fi-rs-star"></i>
+                      </div>
+
+                      <p class="review__description"> The color is soo cool goes with every top.
+                    </p>
+
+                      <span class="review__date">april 30, 2025 at 3:32 pm</span>
+                  </div>
+               </div>
+
+                 <div class="review__single">
+                <div>
+                  <img src="assets/img/avatar-3.jpg" alt="" class="review__img"/>
+                  <h4 class="review__title">kim-lee</h4>
+                </div>
+
+              <div class="review__data">
+                  <div class="review__rating">
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                  </div>
+
+                  <p class="review__description">The hoddie was so good and size is perfect</p>
+
+                  <span class="review__date">december 3, 2024 at 2:38 pm</span>
+              </div>
+                </div>
+
+                </div>
+
+                <div class="review__form">
+                    <h4 class="review__form-title">Add a review</h4>
+
+                    <div class="rate__product">
+                        <i class="fi fi-rs-star"></i>
+                        <i class="fi fi-rs-star"></i>
+                        <i class="fi fi-rs-star"></i>
+                        <i class="fi fi-rs-star"></i>
+                        <i class="fi fi-rs-star"></i>
+                    </div>
+
+                    <form action="" class="form grid">
+                        <textarea class="form__input textarea" placeholder="Write your comments here"></textarea>
+
+                        <div class="form__group grid">
+                            <input type="text" placeholder="Enter your name (public)" class="form__input" />
+
+                            <input type="email" placeholder="Enter your email (private)" class="form__input" />
+                        </div>
+
+                        <div class="form__btn">
+                            <button class="btn">Sumbit review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!--============================ PRODUCTS ==========================-->
+    <section class="products container section--ig">
+        <h2 class="section__title"><span>You may also like</span></h2>
+
+        <div class="products__container grid" id="recommendationContainer">
+           <!-- dynamic products will come here -->
+        </div>
+    </section>
+     <!--========================== NEWSLETTER  =======================-->
+    <section class="newsletter section">
+        <div class="newsletter__container container grid ">
+           <h3 class="newsletter__title flex">
+            <img src="assets/img/icon-email.svg" 
+            alt=""
+            class="newsletter__icon"
+            />
+            Sign Up to Newsletter
+           </h3>
+
+           <p class="newsletter__descripition">
+            ..And enjoy a ₹1000 off voucher on your first purchase!
+           </p>
+           <form action="" class="newsletter__form">
+            <input type="text" 
+            placeholder="Enter Your Email" 
+            class="newsletter__input"
+            />
+           
+            <button type="submit" class="newsletter__btn">Subscribe</button>             
+        </div>
+     </section>
+
+
+    <!--========================== FOOTER  =======================-->
+     <footer class="footer">
+        <div class="footer container">
+        <div class="footer__container grid">
+            <div class="footer__content">
+                <a href="index.html" class="footer__logo">
+                    <img src="assets/img/logo-2.svg" alt="" class="footer__logo-img">
+                </a>
+
+                <h3 class="footer__subtitle">About Developer</h3>
+
+                <p class="footer__description">
+                  Hello, I’m Jayesh Rathod.
+                </p>
+
+                <p class="footer__description">
+                    ELVO is a full-stack e-commerce platform developed as a final-year academic project.
+                 </p>
+
+                <p class="footer__description">
+                   Feel free to explore my work and connect with me below.
+                 </p>
+                
+                <div class="footer__social">
+                    <h3 class="footer__subtitle">Follow Me</h3>
+
+                    <div class="footer__social-links flex">
+                        <a href="https://x.com/jayesh_94_" target="_blank">
+                            <img 
+                            src="assets/img/icon-x-twitter.svg"
+                            alt="" 
+                            class="footer__social-icon x"
+                            />
+                        </a>
+
+                        <a href="https://discord.com/channels/@me" target="_blank">
+                            <img 
+                            src="assets/img/icon-discord.svg"
+                            alt="" 
+                            class="footer__social-icon x"
+                            />
+                        </a>
+
+                        <a href="https://github.com/jayesh-94" target="_blank">
+                            <img 
+                            src="assets/img/icon-github.svg"
+                            alt="" 
+                            class="footer__social-icon x"
+                            />
+                        </a>
+
+                        <a href="https://www.linkedin.com/in/jayesh-rathod-097002318/" target="_blank">
+                            <img 
+                            src="assets/img/icon-linkedin.svg"
+                            alt="" 
+                            class="footer__social-icon x"
+                            />
+                        </a>
+
+                        
+
+                        <a href="" target="_blank">
+                            <img 
+                            src="assets/img/icon-instagram.svg"
+                            alt="" 
+                            class="footer__social-icon"
+                            />
+                        </a>
+
+                    
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer__content">
+                <h3 class="footer__title">Help</h3>
+
+                <ul class="footer__links">
+                  <li><a href="" class="footer__link">About Elvo</a></li>
+                  <li><a href="" class="footer__link">Contact Us</a></li>
+                  <li><a href="" class="footer__link">Privacy Commitment</a></li>
+                  <li><a href="" class="footer__link">Customer Service</a></li>
+                  <li><a href="" class="footer__link">Support</a></li>
+                  <li><a href="" class="footer__link">FAQs</a></li>  
+                </ul>
+            </div>
+
+            <div class="footer__content">
+                <h3 class="footer__title">My Account</h3>
+
+                <ul class="footer__links">
+                  <li><a href="login-register.html" class="footer__link">Sign In</a></li>
+                  <li><a href="cart.html" class="footer__link">View Cart</a></li>
+                  <li><a href="wishlist.html" class="footer__link">My wishlist</a></li>
+                  <li><a href="accounts.html" class="footer__link">Track Order</a></li>
+                  <li><a href="" class="footer__link">Returns</a></li>
+                  <li><a href="accounts.html" class="footer__link">Shipping</a></li>  
+                </ul>
+            </div>
+
+            <div class="footer__content">
+                <h3 class="footer__title">Secured Payment Gateways</h3>
+
+                <img src="assets/img/payment-method.png" alt="" class="payment__img">
+            </div>
+        </div>
+
+        <div class="footer__bottom">
+            <p class="copyright"> © 2025  Elvo. All rights reserved.</p>
+        </div>
+    </div>
+     </footer>
+
+    <!--========================== SWIPER JS  =======================-->
+   
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> 
+
+    <!--========================== MAIN JA  =======================-->
+     <script src="assets/js/main.js"></script>
+
+    <!-- =============== search bar/ cart / whishlist functionlity ===============  -->
+     <script src="assets/js/common.js"></script>
+     <script src="assets/js/cart-utils.js"></script>
+     <script src="assets/js/wishlist-utils.js"></script>
+
+    <!-- ================ compare js details js =================================== -->
+     <script src="assets/js/compare.js"></script>
+     <script src="assets/js/details.js"></script>
+     
+</body>
+</html>

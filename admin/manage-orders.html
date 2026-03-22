@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="manage-products.html">Manage Products</a></li>
+        <li><a href="manage-orders.html">Manage Orders</a></li>
+        <li><a href="#" class="logout-link">Logout</a></li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <h1>Manage Orders</h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Order Details</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Change Status</th>
+          </tr>
+        </thead>
+        <tbody id="orderTable">
+          <tr>
+            <td colspan="5">Loading orders...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="order-modal" id="orderModal">
+      <div class="order-modal-content">
+        <span class="order-modal-close" id="closeOrderModal">&times;</span>
+        <div id="orderModalBody"></div>
+      </div>
+    </div>
+
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-protect.js"></script>
+    <script src="/assets/js/admin.js"></script>
+  </body>
+</html>

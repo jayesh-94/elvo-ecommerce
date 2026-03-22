@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Products</title>
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body>
+    <div class="admin-layout">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <h2>Admin Panel</h2>
+        </div>
+
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="manage-products.html" class="active">Manage Products</a></li>
+          <li><a href="manage-orders.html">Manage Orders</a></li>
+          <li><a href="#" class="logout-link">Logout</a></li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <div class="page-header">
+          <div>
+            <p class="page-kicker">Admin</p>
+            <h1>Manage Products</h1>
+            <p class="page-subtitle">
+              Add, edit, and manage your ELVO product catalog.
+            </p>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <section class="admin-card product-form-card">
+            <div class="card-header">
+              <h2>Product Details</h2>
+              <p>Fill in the product information below.</p>
+            </div>
+
+            <form id="productForm" enctype="multipart/form-data" class="product-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="name">Product Name</label>
+                  <input type="text" id="name" placeholder="Enter product name" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="price">Price</label>
+                  <input type="number" id="price" placeholder="Enter price" required />
+                </div>
+
+                <div class="form-group form-group-full">
+                  <label for="description">Description</label>
+                  <textarea
+                    id="description"
+                    placeholder="Write product description"
+                    rows="4"
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="category">Category</label>
+                  <input type="text" id="category" placeholder="e.g. men, women, bags" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="stock">Stock</label>
+                  <input type="number" id="stock" placeholder="Available stock" required />
+                </div>
+
+                <div class="form-group form-group-full">
+                  <label for="images">Product Images</label>
+                  <input
+                    type="file"
+                    id="images"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="colorsInput">Colors</label>
+                  <input
+                    type="text"
+                    id="colorsInput"
+                    name="colors"
+                    placeholder="#000000,#ffffff,#ff0000"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="sizesInput">Sizes</label>
+                  <input type="text" id="sizesInput" name="sizes" placeholder="M,L,XL,XXL" />
+                </div>
+              </div>
+
+              <div class="flags">
+                <p class="flags__title">Show On Home</p>
+
+                <div class="flags-grid">
+                  <label class="flag">
+                    <input type="checkbox" id="isFeatured" />
+                    <span class="flag__box"></span>
+                    <span class="flag__text">Featured</span>
+                  </label>
+
+                  <label class="flag">
+                    <input type="checkbox" id="isPopular" />
+                    <span class="flag__box"></span>
+                    <span class="flag__text">Popular</span>
+                  </label>
+
+                  <label class="flag">
+                    <input type="checkbox" id="isTrending" />
+                    <span class="flag__box"></span>
+                    <span class="flag__text">Trending</span>
+                  </label>
+
+                  <label class="flag">
+                    <input type="checkbox" id="isChicEssential" />
+                    <span class="flag__box"></span>
+                    <span class="flag__text">Chic Essential</span>
+                  </label>
+
+                  <label class="flag">
+                    <input type="checkbox" id="isNewArrival" />
+                    <span class="flag__box"></span>
+                    <span class="flag__text">New Arrival</span>
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="primary-btn">Add Product</button>
+            </form>
+          </section>
+
+          <section class="admin-card table-card">
+            <div class="card-header">
+              <h2>Products List</h2>
+              <p>View and manage all added products.</p>
+            </div>
+
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="productTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-protect.js"></script>
+    <script src="/assets//js/admin.js"></script>
+  </body>
+</html>
