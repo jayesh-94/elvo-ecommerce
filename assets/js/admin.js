@@ -117,7 +117,7 @@ async function loadDashboardStats() {
       cancelledOrders.innerText = data.stats.cancelledOrders || 0;
     if (totalRevenue) {
       totalRevenue.innerText = `₹${Number(
-        data.stats.totalRevenue || 0,
+        data.stats.totalRevenue || 0
       ).toLocaleString("en-IN")}`;
     }
   } catch (error) {
@@ -141,7 +141,7 @@ async function fetchProducts() {
         ? typeof window.getProductImageUrl === "function"
           ? window.getProductImageUrl(
               product.images[0],
-              "/assets/img/category-1.jpg",
+              "/assets/img/category-1.jpg"
             )
           : product.images[0]
         : "/assets/img/category-1.jpg";
@@ -158,26 +158,26 @@ async function fetchProducts() {
       }
 
       const row = `
-    <tr>
-      <td>
-        <div class="product-info">
-          <img src="${firstImg}" alt="${product.name}" class="product-thumb" />
-          <div>
-            <div class="product-name">${product.name}</div>
-          </div>
-        </div>
-      </td>
-      <td>₹${Number(product.price || 0).toLocaleString("en-IN")}</td>
-      <td><span class="product-category">${product.category || "-"}</span></td>
-      <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
-      <td>
-        <div class="table-actions">
-          <button class="action-btn edit-btn" onclick="editProduct('${product._id}')">Edit</button>
-          <button class="action-btn delete-btn" onclick="deleteProduct('${product._id}')">Delete</button>
-        </div>
-      </td>
-    </tr>
-  `;
+        <tr>
+          <td>
+            <div class="product-info">
+              <img src="${firstImg}" alt="${product.name}" class="product-thumb" />
+              <div>
+                <div class="product-name">${product.name}</div>
+              </div>
+            </div>
+          </td>
+          <td>₹${Number(product.price || 0).toLocaleString("en-IN")}</td>
+          <td><span class="product-category">${product.category || "-"}</span></td>
+          <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
+          <td>
+            <div class="table-actions">
+              <button class="action-btn edit-btn" onclick="editProduct('${product._id}')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deleteProduct('${product._id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
 
       productTable.innerHTML += row;
     });
@@ -370,7 +370,7 @@ async function loadOrders(page = 1) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -399,10 +399,10 @@ function getStatusBadge(status) {
 
 function getPaymentBadge(order) {
   const paymentMethod = String(order.paymentMethod || "").trim();
-  const paymentStatus = order.paymentStatus || "";
+  const paymentStatus = String(order.paymentStatus || "").trim().toLowerCase();
   const paymentDisplay = order.paymentDisplay || paymentMethod || "-";
 
-  const cls = paymentStatus.toLowerCase() === "prepaid" ? "paid" : "unpaid";
+  const cls = paymentStatus === "paid" ? "paid" : "unpaid";
 
   return `
     <span class="payment-badge payment-${cls}">
@@ -508,31 +508,33 @@ function showOrderDetails(orderId) {
   const itemsHtml = (order.items || [])
     .map((item) => {
       const image = item.image
-        ? `${SERVER_BASE}/${String(item.image).replace(/\\/g, "/")}`
+        ? typeof window.getProductImageUrl === "function"
+          ? window.getProductImageUrl(item.image, "/assets/img/category-1.jpg")
+          : item.image
         : "/assets/img/category-1.jpg";
 
       return `
-      <li class="order-item-card">
-        <img src="${image}" alt="${item.name || "Product"}" class="order-item-image" />
-        <div class="order-item-content">
-          <div class="order-item-name">${item.name || "Product"}</div>
-          <div class="order-item-meta">Quantity: ${item.qty || 1}</div>
-          <div class="order-item-meta">Price: ₹${Number(item.price || 0).toLocaleString("en-IN")}</div>
-          ${item.size ? `<div class="order-item-meta">Size: ${item.size}</div>` : ""}
-          ${
-            item.color
-              ? `<div class="order-item-meta">
-                  Color:
-                  <span style="display:inline-flex;align-items:center;gap:6px;">
-                    <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:${item.color};border:1px solid #ccc;"></span>
-                    ${getColorLabel(item.color)}
-                  </span>
-                </div>`
-              : ""
-          }
-        </div>
-      </li>
-    `;
+        <li class="order-item-card">
+          <img src="${image}" alt="${item.name || "Product"}" class="order-item-image" />
+          <div class="order-item-content">
+            <div class="order-item-name">${item.name || "Product"}</div>
+            <div class="order-item-meta">Quantity: ${item.qty || 1}</div>
+            <div class="order-item-meta">Price: ₹${Number(item.price || 0).toLocaleString("en-IN")}</div>
+            ${item.size ? `<div class="order-item-meta">Size: ${item.size}</div>` : ""}
+            ${
+              item.color
+                ? `<div class="order-item-meta">
+                    Color:
+                    <span style="display:inline-flex;align-items:center;gap:6px;">
+                      <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:${item.color};border:1px solid #ccc;"></span>
+                      ${getColorLabel(item.color)}
+                    </span>
+                  </div>`
+                : ""
+            }
+          </div>
+        </li>
+      `;
     })
     .join("");
 
