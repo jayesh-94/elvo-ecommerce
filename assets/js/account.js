@@ -252,7 +252,7 @@ async function loadMyOrders() {
                   <div class="order-item-name">${item.name || "Product"}</div>
                   <div class="order-item-meta">Quantity: ${item.qty || 1}</div>
                   <div class="order-item-meta">Price: Rs. ${Number(
-                    item.price || 0
+                    item.price || 0,
                   ).toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -287,7 +287,9 @@ async function loadMyOrders() {
               <div class="order-info-item"><strong>Order ID:</strong> #${order._id.slice(-6).toUpperCase()}</div>
               <div class="order-info-item"><strong>Status:</strong> ${order.status || "Pending"}</div>
               <div class="order-info-item"><strong>Payment:</strong> ${order.paymentDisplay || order.paymentMethod || "-"}</div>
-              <div class="order-info-item"><strong>Total:</strong> Rs. ${Number(order.totalAmount || 0).toLocaleString("en-IN", {
+              <div class="order-info-item"><strong>Total:</strong> Rs. ${Number(
+                order.totalAmount || 0,
+              ).toLocaleString("en-IN", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}</div>
@@ -331,7 +333,7 @@ async function loadMyOrders() {
 
         const orderId = btn.getAttribute("data-order-id");
         const confirmCancel = confirm(
-          "Are you sure you want to cancel this order?"
+          "Are you sure you want to cancel this order?",
         );
         if (!confirmCancel) return;
 
@@ -348,7 +350,7 @@ async function loadMyOrders() {
           if (cancelData.success) {
             showToast(
               "Order cancelled successfully. Money will be refunded to your payment method within 7 days.",
-              "success"
+              "success",
             );
             loadMyOrders();
           } else {
@@ -431,7 +433,10 @@ async function updateProfile() {
       body: JSON.stringify(payload),
     });
 
-    const data = await safeParseResponse(res);
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json()
+      : { message: await res.text() };
 
     if (!res.ok) {
       showToast(data.message || "Failed to update profile", "error");
@@ -475,7 +480,10 @@ async function saveAddress() {
       body: JSON.stringify(payload),
     });
 
-    const data = await safeParseResponse(res);
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json()
+      : { message: await res.text() };
 
     if (!res.ok) {
       showToast(data.message || "Failed to save address", "error");
@@ -499,13 +507,9 @@ async function changePassword() {
     const token = localStorage.getItem("token");
 
     const payload = {
-      currentPassword: document
-        .getElementById("currentPassword")
-        ?.value.trim(),
+      currentPassword: document.getElementById("currentPassword")?.value.trim(),
       newPassword: document.getElementById("newPassword")?.value.trim(),
-      confirmPassword: document
-        .getElementById("confirmPassword")
-        ?.value.trim(),
+      confirmPassword: document.getElementById("confirmPassword")?.value.trim(),
     };
 
     const res = await fetch(`${ELVO_USER_API}/change-password`, {
