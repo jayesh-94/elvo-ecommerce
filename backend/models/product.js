@@ -23,6 +23,7 @@ const productSchema = new mongoose.Schema(
     images: {
       type: [String],
       required: true,
+      default: [],
     },
 
     colors: {
@@ -38,6 +39,8 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       trim: true,
+      lowercase: true,
+      default: "",
     },
 
     stock: {
@@ -54,7 +57,7 @@ const productSchema = new mongoose.Schema(
     isNewArrival: { type: Boolean, default: false },
   },
   {
-    timestamps: true, // 🔥 better than manual createdAt
+    timestamps: true,
   }
 );
 

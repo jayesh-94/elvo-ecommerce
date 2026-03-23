@@ -6,6 +6,10 @@ const { storage } = require("../config/cloudinary");
 
 const upload = multer({ storage });
 
+function normalizeCategory(category = "") {
+  return String(category).trim().toLowerCase();
+}
+
 // =====================
 // HOME SECTIONS (FLAGS)
 // =====================
@@ -102,7 +106,9 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// showcase section
+// ================================
+// SHOWCASE SECTION
+// ================================
 router.get("/home/showcase", async (req, res) => {
   try {
     const caps = await Product.find({ category: "caps" })
@@ -151,16 +157,16 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       name,
       price,
       description,
-      category,
+      category: normalizeCategory(category),
       stock,
-      images: req.files ? req.files.map((file) => file.path) : [],
+      images: req.files && req.files.length > 0 ? req.files.map((file) => file.path) : [],
       colors: colors ? colors.split(",").map((c) => c.trim()) : [],
       sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
-      isFeatured: isFeatured === "true",
-      isPopular: isPopular === "true",
-      isTrending: isTrending === "true",
-      isChicEssential: isChicEssential === "true",
-      isNewArrival: isNewArrival === "true",
+      isFeatured: String(isFeatured) === "true",
+      isPopular: String(isPopular) === "true",
+      isTrending: String(isTrending) === "true",
+      isChicEssential: String(isChicEssential) === "true",
+      isNewArrival: String(isNewArrival) === "true",
     });
 
     await newProduct.save();
@@ -237,15 +243,15 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       name,
       price,
       description,
-      category,
+      category: normalizeCategory(category),
       stock,
       colors: colors ? colors.split(",").map((c) => c.trim()) : [],
       sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
-      isFeatured: isFeatured === "true",
-      isPopular: isPopular === "true",
-      isTrending: isTrending === "true",
-      isChicEssential: isChicEssential === "true",
-      isNewArrival: isNewArrival === "true",
+      isFeatured: String(isFeatured) === "true",
+      isPopular: String(isPopular) === "true",
+      isTrending: String(isTrending) === "true",
+      isChicEssential: String(isChicEssential) === "true",
+      isNewArrival: String(isNewArrival) === "true",
     };
 
     if (req.files && req.files.length > 0) {
