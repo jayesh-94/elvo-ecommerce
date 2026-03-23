@@ -49,6 +49,19 @@ function getColorLabel(colorValue) {
   return colorMap[hex] || colorValue;
 }
 
+async function safeParseResponse(res) {
+  const contentType = res.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return await res.json();
+  }
+
+  const text = await res.text();
+  return {
+    message: text || `Request failed with status ${res.status}`,
+  };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   const storedUser = localStorage.getItem("user");
@@ -113,7 +126,7 @@ async function loadAccountData() {
       },
     });
 
-    const user = await res.json();
+    const user = await safeParseResponse(res);
 
     if (!res.ok) {
       throw new Error(user.message || "Failed to load account data");
@@ -142,7 +155,7 @@ async function loadMyOrders() {
       },
     });
 
-    const data = await res.json();
+    const data = await safeParseResponse(res);
 
     if (!res.ok) {
       tbody.innerHTML = `
@@ -330,7 +343,7 @@ async function loadMyOrders() {
             },
           });
 
-          const cancelData = await cancelRes.json();
+          const cancelData = await safeParseResponse(cancelRes);
 
           if (cancelData.success) {
             showToast(
@@ -409,7 +422,7 @@ async function updateProfile() {
       phone: document.getElementById("profilePhone")?.value.trim(),
     };
 
-    const res = await fetch(`${ELVO_USER_API}/profile`, {
+    const res = await fetch(`${ELVO_USER_API}/me`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -418,7 +431,7 @@ async function updateProfile() {
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const data = await safeParseResponse(res);
 
     if (!res.ok) {
       showToast(data.message || "Failed to update profile", "error");
@@ -442,16 +455,18 @@ async function saveAddress() {
     const token = localStorage.getItem("token");
 
     const payload = {
-      fullName: document.getElementById("addressFullName")?.value.trim(),
-      line1: document.getElementById("addressLine1")?.value.trim(),
-      city: document.getElementById("addressCity")?.value.trim(),
-      state: document.getElementById("addressState")?.value.trim(),
-      postalCode: document.getElementById("addressPostalCode")?.value.trim(),
-      country: document.getElementById("addressCountry")?.value.trim(),
       phone: document.getElementById("addressPhone")?.value.trim(),
+      address: {
+        fullName: document.getElementById("addressFullName")?.value.trim(),
+        line1: document.getElementById("addressLine1")?.value.trim(),
+        city: document.getElementById("addressCity")?.value.trim(),
+        state: document.getElementById("addressState")?.value.trim(),
+        postalCode: document.getElementById("addressPostalCode")?.value.trim(),
+        country: document.getElementById("addressCountry")?.value.trim(),
+      },
     };
 
-    const res = await fetch(`${ELVO_USER_API}/address`, {
+    const res = await fetch(`${ELVO_USER_API}/me`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -460,7 +475,7 @@ async function saveAddress() {
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const data = await safeParseResponse(res);
 
     if (!res.ok) {
       showToast(data.message || "Failed to save address", "error");
@@ -502,7 +517,7 @@ async function changePassword() {
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const data = await safeParseResponse(res);
 
     if (!res.ok) {
       showToast(data.message || "Failed to change password", "error");
