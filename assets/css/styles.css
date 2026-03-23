@@ -850,12 +850,14 @@ table {
   text-overflow: ellipsis;
   margin-bottom: 0.5rem;
 }
-
-.showcase__category {
-  color: #000;
+.showcase__item {
+  text-decoration: none;
+  color: inherit;
 }
 
-.showcase__price {
+.showcase__item .showcase__title,
+.showcase__item .showcase__category,
+.showcase__item .showcase__price {
   color: #000;
 }
 
