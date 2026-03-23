@@ -842,7 +842,7 @@ table {
   width: calc(100% - 110px);
 }
 
-.showcase__title {
+.showcase__title .showcase__category .showcase__price{
   font-size: var(--small-font-size);
   font-weight: var(--weight-600);
   white-space: nowrap;
