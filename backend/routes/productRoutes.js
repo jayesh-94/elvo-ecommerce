@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 const Product = require("../models/product");
-const upload = require("../middleware/upload");
+const { storage } = require("../config/cloudinary");
+
+const upload = multer({ storage });
 
 // =====================
 // HOME SECTIONS (FLAGS)
@@ -99,18 +102,21 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// showcase setcion
+// showcase section
 router.get("/home/showcase", async (req, res) => {
   try {
     const caps = await Product.find({ category: "caps" })
       .sort({ createdAt: -1 })
       .limit(3);
+
     const sunglasses = await Product.find({ category: "sunglasses" })
       .sort({ createdAt: -1 })
       .limit(3);
+
     const bags = await Product.find({ category: "bags" })
       .sort({ createdAt: -1 })
       .limit(3);
+
     const jewellery = await Product.find({ category: "jewellery" })
       .sort({ createdAt: -1 })
       .limit(3);
@@ -134,8 +140,6 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       stock,
       colors,
       sizes,
-
-      //  FLAGS
       isFeatured,
       isPopular,
       isTrending,
@@ -149,13 +153,9 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       description,
       category,
       stock,
-
-      images: req.files.map((file) => file.path.replace(/\\/g, "/")),
-
-      colors: colors ? colors.split(",") : [],
-      sizes: sizes ? sizes.split(",") : [],
-
-      //  FLAGS (convert "true"/"false" string to boolean)
+      images: req.files ? req.files.map((file) => file.path) : [],
+      colors: colors ? colors.split(",").map((c) => c.trim()) : [],
+      sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
       isFeatured: isFeatured === "true",
       isPopular: isPopular === "true",
       isTrending: isTrending === "true",
@@ -226,8 +226,6 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       stock,
       colors,
       sizes,
-
-      //  FLAGS
       isFeatured,
       isPopular,
       isTrending,
@@ -241,12 +239,8 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       description,
       category,
       stock,
-
-      // arrays
-      colors: colors ? colors.split(",") : [],
-      sizes: sizes ? sizes.split(",") : [],
-
-      // boolean flags
+      colors: colors ? colors.split(",").map((c) => c.trim()) : [],
+      sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
       isFeatured: isFeatured === "true",
       isPopular: isPopular === "true",
       isTrending: isTrending === "true",
@@ -254,11 +248,8 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       isNewArrival: isNewArrival === "true",
     };
 
-    //  Only replace images if new ones uploaded
     if (req.files && req.files.length > 0) {
-      updateData.images = req.files.map((file) =>
-        file.path.replace(/\\/g, "/")
-      );
+      updateData.images = req.files.map((file) => file.path);
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
