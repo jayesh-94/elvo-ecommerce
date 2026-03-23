@@ -204,6 +204,52 @@ async function loadProductsInto(type, containerId) {
 }
 
 // ========================
+// SHOWCASE SECTION
+// ========================
+function showcaseCard(p) {
+  return `
+    <a href="details.html?id=${p._id}" class="showcase__item">
+      <img src="${imgUrl(p.images?.[0])}" alt="${p.name}" class="showcase__img" />
+      <div class="showcase__content">
+        <h4 class="showcase__title">${p.name}</h4>
+        <span class="showcase__category">${p.category || "Product"}</span>
+        <div class="showcase__price">Rs. ${p.price}</div>
+      </div>
+    </a>
+  `;
+}
+
+async function loadShowcase() {
+  try {
+    const res = await fetch(`${ELVO_API}/home/showcase`);
+    const data = await res.json();
+
+    const capsList = document.getElementById("capsList");
+    const sunglassesList = document.getElementById("sunglassesList");
+    const bagsList = document.getElementById("bagsList");
+    const jewelleryList = document.getElementById("jewelleryList");
+
+    if (capsList) {
+      capsList.innerHTML = (data.caps || []).map(showcaseCard).join("");
+    }
+
+    if (sunglassesList) {
+      sunglassesList.innerHTML = (data.sunglasses || []).map(showcaseCard).join("");
+    }
+
+    if (bagsList) {
+      bagsList.innerHTML = (data.bags || []).map(showcaseCard).join("");
+    }
+
+    if (jewelleryList) {
+      jewelleryList.innerHTML = (data.jewellery || []).map(showcaseCard).join("");
+    }
+  } catch (err) {
+    console.error("Showcase load error:", err);
+  }
+}
+
+// ========================
 // INIT
 // ========================
 document.addEventListener("DOMContentLoaded", () => {
