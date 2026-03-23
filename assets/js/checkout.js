@@ -113,7 +113,10 @@ async function loadCheckoutCart() {
 
     tbody.innerHTML = cart
       .map((item) => {
-        const product = allProducts.find((p) => String(p._id) === String(item.productId));
+        const product = allProducts.find(
+          (p) => String(p._id) === String(item.productId)
+        );
+
         if (!product) {
           return `
             <tr>
@@ -127,7 +130,9 @@ async function loadCheckoutCart() {
         const lineTotal = price * qty;
         subtotal += lineTotal;
 
-        const imagePath = Array.isArray(product.images) ? product.images[0] : product.image;
+        const imagePath = Array.isArray(product.images)
+          ? product.images[0]
+          : product.image;
 
         return `
           <tr>
@@ -155,7 +160,8 @@ async function loadCheckoutCart() {
       .join("");
 
     if (subtotalEl) subtotalEl.textContent = `Rs. ${formatPrice(subtotal)}`;
-    if (grandTotalEl) grandTotalEl.textContent = `Rs. ${formatPrice(subtotal)}`;
+    if (grandTotalEl)
+      grandTotalEl.textContent = `Rs. ${formatPrice(subtotal)}`;
   } catch (error) {
     console.error("Checkout cart load error:", error);
 
@@ -247,7 +253,7 @@ async function placeOrder(e) {
   const placeOrderBtn = document.getElementById("placeOrderBtn");
   if (placeOrderBtn) {
     placeOrderBtn.disabled = true;
-    placeOrderBtn.textContent = "Processing.";
+    placeOrderBtn.textContent = "Processing...";
   }
 
   try {
@@ -268,16 +274,120 @@ async function placeOrder(e) {
         if (window.updateCartCount) window.updateCartCount();
         window.location.href = "order-success.html";
       } else {
-        showToast(data.message || "Failed to place order", "error");
+        showToast(data.message || "Order failed", "error");
       }
-    } else {
-      showToast("Only Cash On Delivery is active right now", "warning");
+
+      return;
     }
-  } catch (error) {
-    console.error("Place order error:", error);
-    showToast("Something went wrong while placing order", "error");
+
+    if (paymentMethod === "Online Payment") {
+      if (typeof Razorpay === "undefined") {
+        showToast("Razorpay SDK not loaded", "error");
+        return;
+      }
+
+      const razorpayRes = await fetch(
+        `${ELVO_SERVER}/api/orders/create-razorpay-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ items: cart }),
+        }
+      );
+
+      const razorpayData = await razorpayRes.json();
+
+      if (!razorpayData.success) {
+        showToast(
+          razorpayData.message || "Failed to create payment order",
+          "error"
+        );
+        return;
+      }
+
+      const options = {
+        key: razorpayData.key,
+        amount: razorpayData.order.amount,
+        currency: razorpayData.order.currency,
+        name: "ELVO",
+        description: "Order Payment",
+        order_id: razorpayData.order.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(
+              `${ELVO_SERVER}/api/orders/verify-payment`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderData,
+                }),
+              }
+            );
+
+            const verifyData = await verifyRes.json();
+
+            if (verifyData.success) {
+              if (window.clearCart) window.clearCart();
+              if (window.updateCartCount) window.updateCartCount();
+              window.location.href = "order-success.html";
+            } else {
+              showToast(
+                verifyData.message || "Payment verification failed",
+                "error"
+              );
+            }
+          } catch (error) {
+            console.error("Verify payment error:", error);
+            showToast("Payment verification failed", "error");
+          } finally {
+            if (placeOrderBtn) {
+              placeOrderBtn.disabled = false;
+              placeOrderBtn.textContent = "Place Order";
+            }
+          }
+        },
+        prefill: {
+          name: billingDetails.name,
+          email: billingDetails.email,
+          contact: billingDetails.phone,
+        },
+        notes: {
+          address: billingDetails.address,
+        },
+        theme: {
+          color: "#111827",
+        },
+        modal: {
+          ondismiss: function () {
+            if (placeOrderBtn) {
+              placeOrderBtn.disabled = false;
+              placeOrderBtn.textContent = "Place Order";
+            }
+          },
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+      return;
+    }
+
+    showToast("Invalid payment method selected", "error");
+  } catch (err) {
+    console.error("Place order error:", err);
+    showToast("Something went wrong. Please try again later.", "error");
   } finally {
-    if (placeOrderBtn) {
+    if (placeOrderBtn && paymentMethod === "Cash On Delivery") {
       placeOrderBtn.disabled = false;
       placeOrderBtn.textContent = "Place Order";
     }

@@ -1,287 +1,236 @@
 const express = require("express");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 const router = express.Router();
-const multer = require("multer");
+
+const Order = require("../models/order");
 const Product = require("../models/product");
-const { storage } = require("../config/cloudinary");
+const authMiddleware = require("../middleware/auth"); // use your actual auth middleware path/name
 
-const upload = multer({ storage });
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
-function normalizeCategory(category = "") {
-  return String(category).trim().toLowerCase();
+function normalizeCartItems(items) {
+  return Array.isArray(items) ? items : [];
 }
 
-// =====================
-// HOME SECTIONS (FLAGS)
-// =====================
+async function buildOrderItems(items) {
+  const safeItems = normalizeCartItems(items);
+  const builtItems = [];
+  let totalAmount = 0;
 
-// Chic Essentials (swiper)
-router.get("/home/chic-essentials", async (req, res) => {
-  try {
-    const products = await Product.find({ isChicEssential: true })
-      .sort({ createdAt: -1 })
-      .limit(12);
+  for (const item of safeItems) {
+    const product = await Product.findById(item.productId);
+    if (!product) continue;
 
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const qty = Number(item.qty) || 1;
+    const price = Number(product.price) || 0;
+    const lineTotal = price * qty;
+
+    totalAmount += lineTotal;
+
+    builtItems.push({
+      productId: product._id,
+      name: product.name,
+      image: Array.isArray(product.images) ? product.images[0] : "",
+      price,
+      qty,
+      size: item.size || "",
+      color: item.color || "",
+    });
   }
-});
 
-// New Arrivals (swiper)
-router.get("/home/new-arrivals", async (req, res) => {
+  return { builtItems, totalAmount };
+}
+
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    const products = await Product.find({ isNewArrival: true })
-      .sort({ createdAt: -1 })
-      .limit(12);
+    const { userId, items, billingDetails, paymentMethod } = req.body;
 
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    const { builtItems, totalAmount } = await buildOrderItems(items);
 
-// Featured / Popular / Trending (tabs)
-router.get("/type/:type", async (req, res) => {
-  try {
-    const type = req.params.type;
-
-    const map = {
-      featured: { isFeatured: true },
-      popular: { isPopular: true },
-      trending: { isTrending: true },
-    };
-
-    const filter = map[type];
-    if (!filter) return res.status(400).json({ message: "Invalid type" });
-
-    const products = await Product.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(12);
-
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ================================
-// SEARCH PRODUCTS (by name) WITH PAGINATION
-// GET /api/products/search?q=shirt&page=1&limit=80
-// ================================
-router.get("/search", async (req, res) => {
-  try {
-    const q = (req.query.q || "").trim();
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit) || 50, 1);
-    const skip = (page - 1) * limit;
-
-    if (!q) {
-      return res.json({
-        products: [],
-        totalProducts: 0,
-        currentPage: page,
-        totalPages: 0,
+    if (!builtItems.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid products found in cart",
       });
     }
 
-    const filter = {
-      name: { $regex: q, $options: "i" },
-    };
-
-    const totalProducts = await Product.countDocuments(filter);
-
-    const products = await Product.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    res.json({
-      products,
-      totalProducts,
-      currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
-    });
-  } catch (err) {
-    res.status(500).json({ message: "Search failed", error: err.message });
-  }
-});
-
-// ================================
-// SHOWCASE SECTION
-// ================================
-router.get("/home/showcase", async (req, res) => {
-  try {
-    const caps = await Product.find({ category: "caps" })
-      .sort({ createdAt: -1 })
-      .limit(3);
-
-    const sunglasses = await Product.find({ category: "sunglasses" })
-      .sort({ createdAt: -1 })
-      .limit(3);
-
-    const bags = await Product.find({ category: "bags" })
-      .sort({ createdAt: -1 })
-      .limit(3);
-
-    const jewellery = await Product.find({ category: "jewellery" })
-      .sort({ createdAt: -1 })
-      .limit(3);
-
-    res.json({ caps, sunglasses, bags, jewellery });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ================================
-// CREATE PRODUCT
-// ================================
-router.post("/", upload.array("images", 5), async (req, res) => {
-  try {
-    const {
-      name,
-      price,
-      description,
-      category,
-      stock,
-      colors,
-      sizes,
-      isFeatured,
-      isPopular,
-      isTrending,
-      isChicEssential,
-      isNewArrival,
-    } = req.body;
-
-    const newProduct = new Product({
-      name,
-      price,
-      description,
-      category: normalizeCategory(category),
-      stock,
-      images: req.files && req.files.length > 0 ? req.files.map((file) => file.path) : [],
-      colors: colors ? colors.split(",").map((c) => c.trim()) : [],
-      sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
-      isFeatured: String(isFeatured) === "true",
-      isPopular: String(isPopular) === "true",
-      isTrending: String(isTrending) === "true",
-      isChicEssential: String(isChicEssential) === "true",
-      isNewArrival: String(isNewArrival) === "true",
+    const order = new Order({
+      userId,
+      items: builtItems,
+      billingDetails,
+      paymentMethod: paymentMethod || "Cash On Delivery",
+      paymentStatus: "Pending",
+      paymentDisplay:
+        paymentMethod === "Cash On Delivery" ? "COD" : paymentMethod || "COD",
+      status: "Pending",
+      totalAmount,
     });
 
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error creating product",
-      error: error.message,
-    });
-  }
-});
+    await order.save();
 
-// ================================
-// GET ALL PRODUCTS WITH PAGINATION
-// GET /api/products?page=1&limit=80
-// ================================
-router.get("/", async (req, res) => {
-  try {
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit) || 80, 1);
-    const skip = (page - 1) * limit;
-
-    const totalProducts = await Product.countDocuments();
-
-    const products = await Product.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    res.json({
-      products,
-      totalProducts,
-      currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+    return res.json({
+      success: true,
+      message: "Order placed successfully",
+      order,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Create order error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to place order",
+    });
   }
 });
 
-// ================================
-// GET SINGLE PRODUCT
-// ================================
-router.get("/:id", async (req, res) => {
+router.post("/create-razorpay-order", authMiddleware, async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+    const { items } = req.body;
 
-// ================================
-// UPDATE PRODUCT
-// ================================
-router.put("/:id", upload.array("images", 5), async (req, res) => {
-  try {
-    const {
-      name,
-      price,
-      description,
-      category,
-      stock,
-      colors,
-      sizes,
-      isFeatured,
-      isPopular,
-      isTrending,
-      isChicEssential,
-      isNewArrival,
-    } = req.body;
+    const { builtItems, totalAmount } = await buildOrderItems(items);
 
-    const updateData = {
-      name,
-      price,
-      description,
-      category: normalizeCategory(category),
-      stock,
-      colors: colors ? colors.split(",").map((c) => c.trim()) : [],
-      sizes: sizes ? sizes.split(",").map((s) => s.trim()) : [],
-      isFeatured: String(isFeatured) === "true",
-      isPopular: String(isPopular) === "true",
-      isTrending: String(isTrending) === "true",
-      isChicEssential: String(isChicEssential) === "true",
-      isNewArrival: String(isNewArrival) === "true",
-    };
-
-    if (req.files && req.files.length > 0) {
-      updateData.images = req.files.map((file) => file.path);
+    if (!builtItems.length || totalAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid cart items",
+      });
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(totalAmount * 100),
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+    });
 
-    res.json(updatedProduct);
+    return res.json({
+      success: true,
+      key: process.env.RAZORPAY_KEY_ID,
+      order: razorpayOrder,
+      amount: totalAmount,
+    });
   } catch (error) {
-    res.status(500).json({
-      message: "Error updating product",
-      error: error.message,
+    console.error("Create Razorpay order error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create Razorpay order",
     });
   }
 });
 
-// ================================
-// DELETE PRODUCT
-// ================================
-router.delete("/:id", async (req, res) => {
+router.post("/verify-payment", authMiddleware, async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ message: "Product deleted successfully" });
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      orderData,
+    } = req.body;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed",
+      });
+    }
+
+    const { userId, items, billingDetails, paymentMethod } = orderData || {};
+    const { builtItems, totalAmount } = await buildOrderItems(items);
+
+    if (!builtItems.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid products found in cart",
+      });
+    }
+
+    const order = new Order({
+      userId,
+      items: builtItems,
+      billingDetails,
+      paymentMethod: paymentMethod || "Online Payment",
+      paymentStatus: "Prepaid",
+      paymentDisplay: "Razorpay",
+      status: "Pending",
+      totalAmount,
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+    });
+
+    await order.save();
+
+    return res.json({
+      success: true,
+      message: "Payment verified and order placed",
+      order,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Verify payment error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Payment verification failed",
+    });
+  }
+});
+
+router.get("/my", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    console.error("Load my orders error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load orders",
+    });
+  }
+});
+
+router.put("/:id/cancel", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const order = await Order.findOne({ _id: req.params.id, userId });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.status === "Delivered" || order.status === "Cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "This order cannot be cancelled",
+      });
+    }
+
+    order.status = "Cancelled";
+    await order.save();
+
+    return res.json({
+      success: true,
+      message: "Order cancelled successfully",
+    });
+  } catch (error) {
+    console.error("Cancel order error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel order",
+    });
   }
 });
 
