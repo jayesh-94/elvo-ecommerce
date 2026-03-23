@@ -6,8 +6,8 @@ const ELVO_API = window.ELVO_API;
 const SHOP_PRODUCTS_PER_PAGE = 50;
 
 function imgUrl(path) {
-  if (typeof window.imgUrl === "function") {
-    return window.imgUrl(path, "assets/img/cloth-1.png");
+  if (typeof window.getProductImageUrl === "function") {
+    return window.getProductImageUrl(path, "assets/img/cloth-1.png");
   }
 
   if (!path) return "assets/img/cloth-1.png";
@@ -21,7 +21,7 @@ function imgUrl(path) {
     return cleanPath;
   }
 
-  return `${ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
+  return `${window.ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
 function escapeHtml(str) {

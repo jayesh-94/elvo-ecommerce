@@ -138,9 +138,12 @@ async function fetchProducts() {
 
     products.forEach((product) => {
       const firstImg = product.images?.[0]
-        ? (typeof window.imgUrl === "function"
-            ? window.imgUrl(product.images[0], "/assets/img/category-1.jpg")
-            : product.images[0])
+        ? typeof window.getProductImageUrl === "function"
+          ? window.getProductImageUrl(
+              product.images[0],
+              "/assets/img/category-1.jpg",
+            )
+          : product.images[0]
         : "/assets/img/category-1.jpg";
 
       let stockClass = "stock-in";
@@ -155,26 +158,26 @@ async function fetchProducts() {
       }
 
       const row = `
-        <tr>
-          <td>
-            <div class="product-info">
-              <img src="${firstImg}" alt="${product.name}" class="product-thumb" />
-              <div>
-                <div class="product-name">${product.name}</div>
-              </div>
-            </div>
-          </td>
-          <td>₹${Number(product.price || 0).toLocaleString("en-IN")}</td>
-          <td><span class="product-category">${product.category || "-"}</span></td>
-          <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
-          <td>
-            <div class="table-actions">
-              <button class="action-btn edit-btn" onclick="editProduct('${product._id}')">Edit</button>
-              <button class="action-btn delete-btn" onclick="deleteProduct('${product._id}')">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `;
+    <tr>
+      <td>
+        <div class="product-info">
+          <img src="${firstImg}" alt="${product.name}" class="product-thumb" />
+          <div>
+            <div class="product-name">${product.name}</div>
+          </div>
+        </div>
+      </td>
+      <td>₹${Number(product.price || 0).toLocaleString("en-IN")}</td>
+      <td><span class="product-category">${product.category || "-"}</span></td>
+      <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
+      <td>
+        <div class="table-actions">
+          <button class="action-btn edit-btn" onclick="editProduct('${product._id}')">Edit</button>
+          <button class="action-btn delete-btn" onclick="deleteProduct('${product._id}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `;
 
       productTable.innerHTML += row;
     });

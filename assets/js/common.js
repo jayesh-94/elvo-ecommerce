@@ -8,7 +8,7 @@ window.ELVO_SERVER =
 
 window.ELVO_API = `${window.ELVO_SERVER}/api/products`;
 
-window.imgUrl = function (path, fallback = "assets/img/category-1.jpg") {
+window.getProductImageUrl = function (path, fallback = "assets/img/category-1.jpg") {
   if (!path) return fallback;
 
   const cleanPath = String(path).trim();

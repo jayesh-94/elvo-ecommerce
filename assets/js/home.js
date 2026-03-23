@@ -9,8 +9,8 @@ const ELVO_API = window.ELVO_API;
 // IMAGE URL FIX
 // ========================
 function imgUrl(path) {
-  if (typeof window.imgUrl === "function") {
-    return window.imgUrl(path, "assets/img/category-1.jpg");
+  if (typeof window.getProductImageUrl === "function") {
+    return window.getProductImageUrl(path, "assets/img/category-1.jpg");
   }
 
   if (!path) return "assets/img/category-1.jpg";
