@@ -1,9 +1,6 @@
-// assets/js/cart.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const tbody = document.getElementById("cartTableBody");
 
-  // Events (qty + remove) - using event delegation
   if (tbody) {
     tbody.addEventListener("change", (e) => {
       const input = e.target.closest("[data-qty-input]");
@@ -35,14 +32,23 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCart();
 });
 
-// Use global values from cart-utils.js
 const CART_SERVER_BASE = window.ELVO_SERVER;
 const CART_API_BASE = window.ELVO_API;
 
-// Fix image path using same backend base
-function imgUrl(path) {
-  if (!path) return "assets/img/category-1.jpg";
-  return `${CART_SERVER_BASE}/${String(path).replace(/\\/g, "/")}`;
+function imgUrl(path, fallback = "assets/img/category-1.jpg") {
+  if (typeof window.getProductImageUrl === "function") {
+    return window.getProductImageUrl(path, fallback);
+  }
+
+  if (!path) return fallback;
+
+  const cleanPath = String(path).trim();
+
+  if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+    return cleanPath;
+  }
+
+  return `${CART_SERVER_BASE}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
 async function fetchProduct(id) {
@@ -116,7 +122,7 @@ async function renderCart() {
       <tr>
         <td>
           <a href="details.html?id=${p._id}">
-            <img src="${imgUrl(firstImage)}" class="table__img" alt="${p.name}">
+            <img src="${imgUrl(firstImage, "assets/img/category-1.jpg")}" class="table__img" alt="${p.name}">
           </a>
         </td>
 

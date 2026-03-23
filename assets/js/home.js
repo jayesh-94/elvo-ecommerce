@@ -1,35 +1,22 @@
-// ========================
-// BASE URLS (use common.js global)
-// ========================
-
 const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_API = window.ELVO_API;
 
-// ========================
-// IMAGE URL FIX
-// ========================
-function imgUrl(path) {
+function imgUrl(path, fallback = "assets/img/category-1.jpg") {
   if (typeof window.getProductImageUrl === "function") {
-    return window.getProductImageUrl(path, "assets/img/category-1.jpg");
+    return window.getProductImageUrl(path, fallback);
   }
 
-  if (!path) return "assets/img/category-1.jpg";
+  if (!path) return fallback;
 
   const cleanPath = String(path).trim();
 
-  if (
-    cleanPath.startsWith("http://") ||
-    cleanPath.startsWith("https://")
-  ) {
+  if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
     return cleanPath;
   }
 
   return `${window.ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
-// ========================
-// CHIC ESSENTIALS
-// ========================
 async function loadChicEssentials() {
   try {
     const res = await fetch(`${ELVO_API}/home/chic-essentials`);
@@ -42,12 +29,12 @@ async function loadChicEssentials() {
       .map(
         (p) => `
       <a href="details.html?id=${p._id}" class="category__item swiper-slide">
-        <img src="${imgUrl(p.images?.[0])}" 
+        <img src="${imgUrl(p.images?.[0], "assets/img/category-1.jpg")}" 
              alt="${p.name}" 
              class="category__img">
         <h3 class="category__title">${p.name}</h3>
       </a>
-    `,
+    `
       )
       .join("");
 
@@ -57,9 +44,6 @@ async function loadChicEssentials() {
   }
 }
 
-// ========================
-// NEW ARRIVALS
-// ========================
 async function loadNewArrivals() {
   try {
     const res = await fetch(`${ELVO_API}/home/new-arrivals`);
@@ -70,8 +54,8 @@ async function loadNewArrivals() {
 
     wrapper.innerHTML = products
       .map((p) => {
-        const img1 = imgUrl(p.images?.[0]);
-        const img2 = imgUrl(p.images?.[1] || p.images?.[0]);
+        const img1 = imgUrl(p.images?.[0], "assets/img/category-1.jpg");
+        const img2 = imgUrl(p.images?.[1] || p.images?.[0], "assets/img/category-1.jpg");
 
         return `
       <div class="product__item swiper-slide">
@@ -114,14 +98,14 @@ async function loadNewArrivals() {
           </div>
 
           <a href="#"
-             class="action__btn cart__btn"
-             data-product-id="${p._id}"
-             aria-label="Add To Cart">
+            class="action__btn cart__btn"
+            data-product-id="${p._id}"
+            aria-label="Add To Cart">
             <i class="fi fi-rs-shopping-bag-add"></i>
           </a>
         </div>
       </div>
-      `;
+    `;
       })
       .join("");
 
@@ -131,12 +115,9 @@ async function loadNewArrivals() {
   }
 }
 
-// ========================
-// FEATURED / POPULAR / TRENDING
-// ========================
 function productCard(p) {
-  const img1 = imgUrl(p.images?.[0]);
-  const img2 = imgUrl(p.images?.[1] || p.images?.[0]);
+  const img1 = imgUrl(p.images?.[0], "assets/img/category-1.jpg");
+  const img2 = imgUrl(p.images?.[1] || p.images?.[0], "assets/img/category-1.jpg");
 
   return `
     <div class="product__item">
@@ -203,13 +184,10 @@ async function loadProductsInto(type, containerId) {
   }
 }
 
-// ========================
-// SHOWCASE SECTION
-// ========================
 function showcaseCard(p) {
   return `
     <a href="details.html?id=${p._id}" class="showcase__item">
-      <img src="${imgUrl(p.images?.[0])}" alt="${p.name}" class="showcase__img" />
+      <img src="${imgUrl(p.images?.[0], "assets/img/category-1.jpg")}" alt="${p.name}" class="showcase__img" />
       <div class="showcase__content">
         <h4 class="showcase__title">${p.name}</h4>
         <span class="showcase__category">${p.category || "Product"}</span>
@@ -249,13 +227,11 @@ async function loadShowcase() {
   }
 }
 
-// ========================
-// INIT
-// ========================
 document.addEventListener("DOMContentLoaded", () => {
   loadChicEssentials();
   loadNewArrivals();
   loadProductsInto("featured", "featuredProducts");
   loadProductsInto("popular", "popularProducts");
   loadProductsInto("trending", "trendingProducts");
+  loadShowcase();
 });

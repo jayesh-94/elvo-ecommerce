@@ -1,14 +1,22 @@
-// ===== SAFE GLOBALS (no redeclare) =====
-
 const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_API = window.ELVO_API;
 
-function imgUrl(path) {
-  if (!path) return "assets/img/cloth-1.png";
-  return `${ELVO_SERVER}/${String(path).replace(/\\/g, "/")}`;
+function imgUrl(path, fallback = "assets/img/cloth-1.png") {
+  if (typeof window.getProductImageUrl === "function") {
+    return window.getProductImageUrl(path, fallback);
+  }
+
+  if (!path) return fallback;
+
+  const cleanPath = String(path).trim();
+
+  if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+    return cleanPath;
+  }
+
+  return `${ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
-// Get product ID from URL
 const params = new URLSearchParams(window.location.search);
 const productId = params.get("id");
 
@@ -42,7 +50,6 @@ function renderProduct(product) {
   document.getElementById("productStock").innerText =
     product.stock > 0 ? "In Stock" : "Out of Stock";
 
-  // ✅ ensure qty default is 1 on load
   const qtyInput = document.querySelector(".details__action .quantity");
   if (qtyInput) {
     qtyInput.value = "1";
@@ -51,7 +58,7 @@ function renderProduct(product) {
 
   const mainImage = document.getElementById("mainImage");
   mainImage.src = product.images?.length
-    ? imgUrl(product.images[0])
+    ? imgUrl(product.images[0], "assets/img/cloth-1.png")
     : "assets/img/cloth-1.png";
 
   const thumbContainer = document.getElementById("thumbnailContainer");
@@ -59,7 +66,7 @@ function renderProduct(product) {
 
   (product.images || []).forEach((image) => {
     const thumb = document.createElement("img");
-    thumb.src = imgUrl(image);
+    thumb.src = imgUrl(image, "assets/img/cloth-1.png");
     thumb.classList.add("details__small-img");
 
     thumb.addEventListener("click", () => {
@@ -69,14 +76,12 @@ function renderProduct(product) {
     thumbContainer.appendChild(thumb);
   });
 
-  // wishlist btn
   const wBtn = document.getElementById("detailsWishlistBtn");
   if (wBtn) {
     wBtn.setAttribute("data-product-id", product._id);
     wBtn.classList.toggle("active", isInWishlist(product._id));
   }
 
-  // Colors
   const colorContainer = document.getElementById("colorContainer");
   colorContainer.innerHTML = "";
 
@@ -102,7 +107,6 @@ function renderProduct(product) {
     colorContainer.appendChild(li);
   });
 
-  // Sizes
   const sizeContainer = document.getElementById("sizeContainer");
   sizeContainer.innerHTML = "";
 
@@ -128,7 +132,6 @@ function renderProduct(product) {
     sizeContainer.appendChild(li);
   });
 
-  /// Bind ONLY to your Add to Cart button
   const detailsCartBtn = document.getElementById("detailsAddToCart");
 
   if (detailsCartBtn && !detailsCartBtn.dataset.bound) {
@@ -157,7 +160,6 @@ function renderProduct(product) {
   }
 }
 
-// ===== RECOMMENDATIONS =====
 async function loadRecommendations(category, currentProductId) {
   try {
     const response = await fetch(ELVO_API);
@@ -165,7 +167,7 @@ async function loadRecommendations(category, currentProductId) {
     const products = Array.isArray(data) ? data : data.products || [];
 
     const related = products.filter(
-      (p) => p.category === category && p._id !== currentProductId,
+      (p) => p.category === category && p._id !== currentProductId
     );
 
     const container = document.getElementById("recommendationContainer");
@@ -179,8 +181,8 @@ async function loadRecommendations(category, currentProductId) {
     }
 
     related.slice(0, 4).forEach((product) => {
-      const img1 = imgUrl(product.images?.[0]);
-      const img2 = imgUrl(product.images?.[1] || product.images?.[0]);
+      const img1 = imgUrl(product.images?.[0], "assets/img/cloth-1.png");
+      const img2 = imgUrl(product.images?.[1] || product.images?.[0], "assets/img/cloth-1.png");
 
       container.innerHTML += `
         <div class="product__item">
@@ -197,8 +199,8 @@ async function loadRecommendations(category, currentProductId) {
 
               <a href="#"
                 class="action__btn wishlist__btn"
-                data-product-id="${product._id}"
-                aria-label="Add To Wishlist">
+                aria-label="Add To Wishlist"
+                data-product-id="${product._id}">
                 <i class="fi fi-rs-heart"></i>
               </a>
 
@@ -212,20 +214,20 @@ async function loadRecommendations(category, currentProductId) {
           </div>
 
           <div class="product__content">
-            <span class="product__category">${product.category || ""}</span>
+            <span class="product__category">${product.category || "Product"}</span>
 
             <a href="details.html?id=${product._id}">
-              <h3 class="product__title">${product.name || ""}</h3>
+              <h3 class="product__title">${product.name}</h3>
             </a>
 
             <div class="product__price flex">
-              <span class="new__price">₹${product.price || ""}</span>
+              <span class="new__price">Rs. ${product.price}</span>
             </div>
 
             <a href="#"
-               class="action__btn cart__btn"
-               data-product-id="${product._id}"
-               aria-label="Add To Cart">
+              class="action__btn cart__btn"
+              data-product-id="${product._id}"
+              aria-label="Add To Cart">
               <i class="fi fi-rs-shopping-bag-add"></i>
             </a>
           </div>
@@ -236,4 +238,3 @@ async function loadRecommendations(category, currentProductId) {
     console.error("Error loading recommendations:", error);
   }
 }
-2;

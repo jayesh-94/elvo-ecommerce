@@ -1,13 +1,27 @@
 (function () {
-  // ✅ use common.js global config
+  // use common.js global config
   const SERVER = window.ELVO_SERVER;
   const API = window.ELVO_API;
 
   const OUTFIT_KEY = "elvo_outfit";
 
-  function outfitImgUrl(path) {
-    if (!path) return "assets/img/category-1.jpg";
-    return `${SERVER}/${String(path).replace(/\\/g, "/")}`;
+  function outfitImgUrl(path, fallback = "assets/img/category-1.jpg") {
+    if (typeof window.getProductImageUrl === "function") {
+      return window.getProductImageUrl(path, fallback);
+    }
+
+    if (!path) return fallback;
+
+    const cleanPath = String(path).trim();
+
+    if (
+      cleanPath.startsWith("http://") ||
+      cleanPath.startsWith("https://")
+    ) {
+      return cleanPath;
+    }
+
+    return `${SERVER}/${cleanPath.replace(/\\/g, "/")}`;
   }
 
   function readOutfit() {
@@ -29,13 +43,18 @@
     const exists = outfit.some((item) => item.productId === productId);
 
     if (exists) {
-      showToast("This product is already in your outfit.", "warning");
+      if (typeof showToast === "function") {
+        showToast("This product is already in your outfit.", "warning");
+      }
       return;
     }
 
     outfit.push({ productId });
     saveOutfit(outfit);
-    showToast("Added to outfit successfully.", "success");
+
+    if (typeof showToast === "function") {
+      showToast("Added to outfit successfully.", "success");
+    }
   }
 
   function removeFromOutfit(productId) {
@@ -61,7 +80,7 @@
 
   function renderOutfitCard(product) {
     const image = product.images?.[0]
-      ? outfitImgUrl(product.images[0])
+      ? outfitImgUrl(product.images[0], "assets/img/category-1.jpg")
       : "assets/img/category-1.jpg";
 
     const stockText = Number(product.stock) > 0 ? "Available" : "Out of stock";
@@ -82,7 +101,7 @@
                 background:${color};
                 border:1px solid #ddd;
               "></span>
-            `,
+            `
             )
             .join("")}
         </div>
@@ -153,13 +172,12 @@
       return;
     }
 
-    emptyState.style.display = "block";
     emptyState.style.display = "none";
     if (addAllBtn) addAllBtn.style.display = "inline-flex";
     if (clearBtn) clearBtn.style.display = "inline-flex";
 
     const products = await Promise.all(
-      outfit.map((item) => fetchProduct(item.productId)),
+      outfit.map((item) => fetchProduct(item.productId))
     );
     const validProducts = products.filter(Boolean);
 
@@ -173,7 +191,7 @@
 
     const totalPrice = validProducts.reduce(
       (sum, p) => sum + Number(p.price || 0),
-      0,
+      0
     );
 
     summary.innerHTML = `
@@ -200,7 +218,9 @@
           window.updateCartCount();
         }
 
-        showToast("Product added to cart.", "success");
+        if (typeof showToast === "function") {
+          showToast("Product added to cart.", "success");
+        }
       });
     });
   }
@@ -224,7 +244,9 @@
 
         const outfit = readOutfit();
         if (!outfit.length) {
-          showToast("Your outfit is empty.", "warning");
+          if (typeof showToast === "function") {
+            showToast("Your outfit is empty.", "warning");
+          }
           return;
         }
 
@@ -238,7 +260,9 @@
           window.updateCartCount();
         }
 
-        showToast("Full outfit added to cart.", "success");
+        if (typeof showToast === "function") {
+          showToast("Full outfit added to cart.", "success");
+        }
       });
     }
 

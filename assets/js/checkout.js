@@ -1,6 +1,22 @@
 const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_PRODUCTS_API = window.ELVO_API;
 
+function imgUrl(path, fallback = "assets/img/category-1.jpg") {
+  if (typeof window.getProductImageUrl === "function") {
+    return window.getProductImageUrl(path, fallback);
+  }
+
+  if (!path) return fallback;
+
+  const cleanPath = String(path).trim();
+
+  if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+    return cleanPath;
+  }
+
+  return `${ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   const storedUser = localStorage.getItem("user");
@@ -93,64 +109,50 @@ async function loadCheckoutCart() {
     const data = await res.json();
     const allProducts = Array.isArray(data) ? data : data.products || [];
 
-    const cartIds = cart.map((item) => String(item.productId));
-    const products = allProducts.filter((p) => cartIds.includes(String(p._id)));
-
-    const productMap = {};
-    products.forEach((p) => {
-      productMap[String(p._id)] = p;
-    });
-
     let subtotal = 0;
 
     tbody.innerHTML = cart
       .map((item) => {
-        const product = productMap[String(item.productId)];
-        if (!product) return "";
+        const product = allProducts.find((p) => String(p._id) === String(item.productId));
+        if (!product) {
+          return `
+            <tr>
+              <td colspan="3">Product not found</td>
+            </tr>
+          `;
+        }
 
         const qty = Number(item.qty) || 1;
         const price = Number(product.price) || 0;
-        const rowTotal = qty * price;
-        subtotal += rowTotal;
+        const lineTotal = price * qty;
+        subtotal += lineTotal;
 
-        const image = product.images?.[0]
-          ? `${ELVO_SERVER}/${String(product.images[0]).replace(/\\/g, "/")}`
-          : "assets/img/category-1.jpg";
-
-        const sizeHtml = item.size
-          ? `<p class="table__quantity">Size: ${item.size}</p>`
-          : "";
-
-        const colorHtml = item.color
-          ? `<p class="table__quantity">Color: ${item.color}</p>`
-          : "";
+        const imagePath = Array.isArray(product.images) ? product.images[0] : product.image;
 
         return `
           <tr>
-            <td>
-              <img src="${image}" alt="${product.name}" class="order__img"/>
+            <td class="order-product">
+              <img src="${imgUrl(imagePath, "assets/img/category-1.jpg")}" alt="${product.name}" class="table__img">
+              <div style="display:inline-block; vertical-align:middle; margin-left:10px;">
+                <strong>${product.name}</strong>
+                ${
+                  item.size || item.color
+                    ? `
+                    <div style="font-size:12px; color:#666; margin-top:4px;">
+                      ${item.size ? `<div>Size: ${item.size}</div>` : ""}
+                      ${item.color ? `<div>Color: ${item.color}</div>` : ""}
+                    </div>
+                  `
+                    : ""
+                }
+              </div>
             </td>
-
-            <td>
-              <h3 class="table__title">${product.name}</h3>
-              <p class="table__quantity">x ${qty}</p>
-              ${sizeHtml}
-              ${colorHtml}
-            </td>
-            
-            <td><span class="table__price">Rs. ${formatPrice(rowTotal)}</span></td>
+            <td>${qty}</td>
+            <td>Rs. ${formatPrice(lineTotal)}</td>
           </tr>
         `;
       })
       .join("");
-
-    if (!tbody.innerHTML.trim()) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="3">Unable to load cart products.</td>
-        </tr>
-      `;
-    }
 
     if (subtotalEl) subtotalEl.textContent = `Rs. ${formatPrice(subtotal)}`;
     if (grandTotalEl) grandTotalEl.textContent = `Rs. ${formatPrice(subtotal)}`;
@@ -245,7 +247,7 @@ async function placeOrder(e) {
   const placeOrderBtn = document.getElementById("placeOrderBtn");
   if (placeOrderBtn) {
     placeOrderBtn.disabled = true;
-    placeOrderBtn.textContent = "Processing...";
+    placeOrderBtn.textContent = "Processing.";
   }
 
   try {
@@ -266,115 +268,16 @@ async function placeOrder(e) {
         if (window.updateCartCount) window.updateCartCount();
         window.location.href = "order-success.html";
       } else {
-        showToast(data.message || "Order failed", "error");
+        showToast(data.message || "Failed to place order", "error");
       }
-
-      return;
+    } else {
+      showToast("Only Cash On Delivery is active right now", "warning");
     }
-
-    if (paymentMethod === "Online Payment") {
-      const razorpayRes = await fetch(
-        `${ELVO_SERVER}/api/orders/create-razorpay-order`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ items: cart }),
-        },
-      );
-
-      const razorpayData = await razorpayRes.json();
-
-      if (!razorpayData.success) {
-        showToast(
-          razorpayData.message || "Failed to create payment order",
-          "error",
-        );
-        return;
-      }
-
-      const options = {
-        key: razorpayData.key,
-        amount: razorpayData.order.amount,
-        currency: razorpayData.order.currency,
-        name: "ELVO",
-        description: "Order Payment",
-        order_id: razorpayData.order.id,
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch(
-              `${ELVO_SERVER}/api/orders/verify-payment`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  orderData,
-                }),
-              },
-            );
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyData.success) {
-              if (window.clearCart) window.clearCart();
-              if (window.updateCartCount) window.updateCartCount();
-              window.location.href = "order-success.html";
-            } else {
-              showToast(
-                verifyData.message || "Payment verification failed",
-                "error",
-              );
-            }
-          } catch (error) {
-            console.error("Verify payment error:", error);
-            showToast("Payment verification failed", "error");
-          } finally {
-            if (placeOrderBtn) {
-              placeOrderBtn.disabled = false;
-              placeOrderBtn.textContent = "Place Order";
-            }
-          }
-        },
-        prefill: {
-          name: billingDetails.name,
-          email: billingDetails.email,
-          contact: billingDetails.phone,
-        },
-        notes: {
-          address: billingDetails.address,
-        },
-        theme: {
-          color: "#111827",
-        },
-        modal: {
-          ondismiss: function () {
-            if (placeOrderBtn) {
-              placeOrderBtn.disabled = false;
-              placeOrderBtn.textContent = "Place Order";
-            }
-          },
-        },
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-      return;
-    }
-
-    showToast("Invalid payment method selected", "error");
-  } catch (err) {
-    console.error("Place order error:", err);
-    showToast("Something went wrong. Please try again later.", "error");
+  } catch (error) {
+    console.error("Place order error:", error);
+    showToast("Something went wrong while placing order", "error");
   } finally {
-    if (placeOrderBtn && paymentMethod === "Cash On Delivery") {
+    if (placeOrderBtn) {
       placeOrderBtn.disabled = false;
       placeOrderBtn.textContent = "Place Order";
     }
