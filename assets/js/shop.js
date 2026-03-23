@@ -1,14 +1,27 @@
 // assets/js/shop.js
 
-// ✅ SAFE GLOBALS (no redeclare conflicts)
 const ELVO_SERVER = window.ELVO_SERVER;
 const ELVO_API = window.ELVO_API;
 
 const SHOP_PRODUCTS_PER_PAGE = 50;
 
 function imgUrl(path) {
+  if (typeof window.imgUrl === "function") {
+    return window.imgUrl(path, "assets/img/cloth-1.png");
+  }
+
   if (!path) return "assets/img/cloth-1.png";
-  return `${ELVO_SERVER}/${String(path).replace(/\\/g, "/")}`;
+
+  const cleanPath = String(path).trim();
+
+  if (
+    cleanPath.startsWith("http://") ||
+    cleanPath.startsWith("https://")
+  ) {
+    return cleanPath;
+  }
+
+  return `${ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
 function escapeHtml(str) {
@@ -24,7 +37,10 @@ function productCard(product) {
   const img1 = product.images?.[0]
     ? imgUrl(product.images[0])
     : "assets/img/cloth-1.png";
-  const img2 = product.images?.[1] ? imgUrl(product.images[1]) : img1;
+
+  const img2 = product.images?.[1]
+    ? imgUrl(product.images[1])
+    : img1;
 
   return `
     <div class="product__item">
@@ -39,7 +55,6 @@ function productCard(product) {
             <i class="fi fi-rs-eye"></i>
           </a>
 
-          <!-- ✅ FIX: Wishlist button now works -->
           <a href="#"
              class="action__btn wishlist__btn"
              data-product-id="${product._id}"
@@ -48,9 +63,9 @@ function productCard(product) {
           </a>
 
           <a href="#"
-            class="action__btn compare__btn"
-            data-product-id="${product._id}"
-            aria-label="Add To Outfit">
+             class="action__btn compare__btn"
+             data-product-id="${product._id}"
+             aria-label="Add To Outfit">
             <i class="fi fi-rs-shuffle"></i>
           </a>
         </div>
@@ -89,6 +104,7 @@ function renderProducts(products, totalProducts = 0) {
   }
 
   const frag = document.createDocumentFragment();
+
   products.forEach((p) => {
     const wrap = document.createElement("div");
     wrap.innerHTML = productCard(p);
@@ -128,7 +144,12 @@ function renderPagination(currentPage, totalPages, searchQuery = "") {
 
   if (currentPage > 1) {
     pagination.appendChild(
-      createPageItem('<i class="fi-rs-angle-double-small-left"></i>', currentPage - 1, false, true)
+      createPageItem(
+        '<i class="fi-rs-angle-double-small-left"></i>',
+        currentPage - 1,
+        false,
+        true
+      )
     );
   }
 
@@ -166,15 +187,18 @@ function renderPagination(currentPage, totalPages, searchQuery = "") {
 
   if (currentPage < totalPages) {
     pagination.appendChild(
-      createPageItem('<i class="fi-rs-angle-double-small-right"></i>', currentPage + 1, false, true)
+      createPageItem(
+        '<i class="fi-rs-angle-double-small-right"></i>',
+        currentPage + 1,
+        false,
+        true
+      )
     );
   }
 }
 
 async function fetchPaginatedProducts(page = 1) {
-  const res = await fetch(
-    `${ELVO_API}?page=${page}&limit=${SHOP_PRODUCTS_PER_PAGE}`
-  );
+  const res = await fetch(`${ELVO_API}?page=${page}&limit=${SHOP_PRODUCTS_PER_PAGE}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return await res.json();
 }
@@ -220,7 +244,7 @@ async function loadShopProducts(page = 1, searchQuery = "") {
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const searchQuery = (params.get("search") || "").trim();
   const page = Math.max(parseInt(params.get("page")) || 1, 1);

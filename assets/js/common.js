@@ -1,4 +1,4 @@
-// common.js - this file is for header search works on ALL pages (no design change)
+// common.js - this file is for header search works on ALL pages
 
 window.ELVO_SERVER =
   window.location.hostname === "localhost" ||
@@ -7,6 +7,21 @@ window.ELVO_SERVER =
     : "https://elvo-backend-99i0.onrender.com";
 
 window.ELVO_API = `${window.ELVO_SERVER}/api/products`;
+
+window.imgUrl = function (path, fallback = "assets/img/category-1.jpg") {
+  if (!path) return fallback;
+
+  const cleanPath = String(path).trim();
+
+  if (
+    cleanPath.startsWith("http://") ||
+    cleanPath.startsWith("https://")
+  ) {
+    return cleanPath;
+  }
+
+  return `${window.ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchBox = document.querySelector(".header__search");
@@ -23,13 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = `shop.html?search=${encodeURIComponent(q)}`;
   }
 
-  // click search icon
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     goSearch();
   });
 
-  // press Enter inside input
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -48,14 +61,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginNavLink = document.getElementById("loginNavLink");
   const accountNavLink = document.getElementById("accountNavLink");
 
-  // Hide Login if logged in
   if (token && user) {
     if (loginNavLink) loginNavLink.style.display = "none";
   } else {
     if (loginNavLink) loginNavLink.style.display = "";
   }
 
-  // Change My Account link based on role
   if (token && user && accountNavLink) {
     try {
       const parsedUser = JSON.parse(user);

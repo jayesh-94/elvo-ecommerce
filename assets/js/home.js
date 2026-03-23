@@ -9,8 +9,22 @@ const ELVO_API = window.ELVO_API;
 // IMAGE URL FIX
 // ========================
 function imgUrl(path) {
+  if (typeof window.imgUrl === "function") {
+    return window.imgUrl(path, "assets/img/category-1.jpg");
+  }
+
   if (!path) return "assets/img/category-1.jpg";
-  return `${ELVO_SERVER}/${path.replace(/\\/g, "/")}`;
+
+  const cleanPath = String(path).trim();
+
+  if (
+    cleanPath.startsWith("http://") ||
+    cleanPath.startsWith("https://")
+  ) {
+    return cleanPath;
+  }
+
+  return `${window.ELVO_SERVER}/${cleanPath.replace(/\\/g, "/")}`;
 }
 
 // ========================

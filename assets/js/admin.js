@@ -138,7 +138,9 @@ async function fetchProducts() {
 
     products.forEach((product) => {
       const firstImg = product.images?.[0]
-        ? `${SERVER_BASE}/${product.images[0]}`
+        ? (typeof window.imgUrl === "function"
+            ? window.imgUrl(product.images[0], "/assets/img/category-1.jpg")
+            : product.images[0])
         : "/assets/img/category-1.jpg";
 
       let stockClass = "stock-in";
@@ -163,7 +165,7 @@ async function fetchProducts() {
             </div>
           </td>
           <td>₹${Number(product.price || 0).toLocaleString("en-IN")}</td>
-          <td><span class="product-category">${product.category}</span></td>
+          <td><span class="product-category">${product.category || "-"}</span></td>
           <td><span class="stock-badge ${stockClass}">${stockText}</span></td>
           <td>
             <div class="table-actions">
@@ -221,11 +223,11 @@ async function handleProductSubmit(e) {
   }
 
   const formData = new FormData();
-  formData.append("name", name.value);
+  formData.append("name", name.value.trim());
   formData.append("price", price.value);
-  formData.append("category", category.value);
+  formData.append("category", category.value.trim().toLowerCase());
   formData.append("stock", stock.value);
-  formData.append("description", description.value);
+  formData.append("description", description.value.trim());
 
   formData.append("colors", colorsInput.value);
   formData.append("sizes", sizesInput.value);
