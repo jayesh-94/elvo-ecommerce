@@ -190,7 +190,7 @@ function showcaseCard(p) {
       <img src="${imgUrl(p.images?.[0], "assets/img/category-1.jpg")}" alt="${p.name}" class="showcase__img" />
       <div class="showcase__content">
         <h4 class="showcase__title">${p.name}</h4>
-        <span class="showcase__category">${p.category || "Product"}</span>
+        // <span class="showcase__category">${p.category || "Product"}</span>
         <div class="showcase__price">Rs. ${p.price}</div>
       </div>
     </a>
