@@ -227,6 +227,43 @@ async function loadShowcase() {
   }
 }
 
+function startCountdown(endDateStr, ids) {
+  const daysEl = document.getElementById(ids.days);
+  const hoursEl = document.getElementById(ids.hours);
+  const minsEl = document.getElementById(ids.mins);
+  const secsEl = document.getElementById(ids.secs);
+
+  if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+  const endDate = new Date(endDateStr).getTime();
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = endDate - now;
+
+    if (distance <= 0) {
+      daysEl.textContent = "00";
+      hoursEl.textContent = "00";
+      minsEl.textContent = "00";
+      secsEl.textContent = "00";
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((distance / (1000 * 60)) % 60);
+    const secs = Math.floor((distance / 1000) % 60);
+
+    daysEl.textContent = String(days).padStart(2, "0");
+    hoursEl.textContent = String(hours).padStart(2, "0");
+    minsEl.textContent = String(mins).padStart(2, "0");
+    secsEl.textContent = String(secs).padStart(2, "0");
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   loadChicEssentials();
   loadNewArrivals();
@@ -234,4 +271,18 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProductsInto("popular", "popularProducts");
   loadProductsInto("trending", "trendingProducts");
   loadShowcase();
+
+  startCountdown("2026-04-10T23:59:59", {
+    days: "deal1Days",
+    hours: "deal1Hours",
+    mins: "deal1Mins",
+    secs: "deal1Secs",
+  });
+
+  startCountdown("2026-04-15T23:59:59", {
+    days: "deal2Days",
+    hours: "deal2Hours",
+    mins: "deal2Mins",
+    secs: "deal2Secs",
+  });
 });
